@@ -10,6 +10,7 @@ from pygments.lexer import  RegexLexer, bygroups
 from pygments.styles import get_style_by_name, STYLE_MAP
 from . import solarized
 from .pygson import JSONLexer
+from xml.dom.minidom import parseString
 
 
 DEFAULT_STYLE = 'solarized'
@@ -63,4 +64,9 @@ class PrettyHttp(object):
                     lexer = guess_lexer(content)
                 except ClassNotFound:
                     return content
+
+        if lexer.name == 'XML':
+            dom = parseString(content)
+            content = dom.toprettyxml(indent='  ')
+
         return pygments.highlight(content, lexer, self.formatter)
