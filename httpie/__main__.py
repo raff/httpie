@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import requests
+from urlparse import urljoin
 try:
     from collections import OrderedDict
 except ImportError:
@@ -56,11 +57,14 @@ def main(args=None,
     elif 'Content-Type' not in headers:
         headers['Content-Type'] = TYPE_FORM
 
+    config = {'verbose':sys.stderr} if args.verbose else None
+    url = urljoin(args.base, args.url) if args.base else args.url
+
     # Fire the request.
     try:
         response = requests.request(
             method=args.method.lower(),
-            url=args.url if '://' in args.url else 'http://%s' % args.url,
+            url=url if '://' in url else 'http://%s' % url,
             headers=headers,
             data=data,
             verify=True if args.verify == 'yes' else args.verify,
@@ -69,6 +73,7 @@ def main(args=None,
             proxies=dict((p.key, p.value) for p in args.proxy),
             files=dict((os.path.basename(f.name), f) for f in args.file),
             allow_redirects=args.allow_redirects,
+            config=config,
         )
     except (KeyboardInterrupt, SystemExit):
         sys.stderr.write('\n')

@@ -105,6 +105,12 @@ parser.add_argument(
         Print exception traceback should one occur.
     ''')
 )
+parser.add_argument(
+    '--verbose', action='store_true', default=False,
+    help=_('''
+        Print HTTP request.
+    ''')
+)
 
 prettify = parser.add_mutually_exclusive_group(required=False)
 prettify.add_argument(
@@ -167,6 +173,12 @@ parser.add_argument(
     help=_('''
         String mapping protocol to the URL of the proxy
         (e.g. http:foo.bar:3128).
+    ''')
+)
+parser.add_argument(
+    '--base', metavar='BASE', type=str, default=None,
+    help=_('''
+        Base URL for the request.
     ''')
 )
 parser.add_argument(
