@@ -3,7 +3,7 @@ import json
 import pygments
 from pygments import token
 from pygments.util import ClassNotFound
-from pygments.lexers import get_lexer_for_mimetype
+from pygments.lexers import get_lexer_for_mimetype, guess_lexer, XmlLexer
 from pygments.formatters.terminal256 import Terminal256Formatter
 from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexer import  RegexLexer, bygroups
@@ -59,5 +59,8 @@ class PrettyHttp(object):
             try:
                 lexer = get_lexer_for_mimetype(content_type)
             except ClassNotFound:
-                return content
+                try:
+                    lexer = guess_lexer(content)
+                except ClassNotFound:
+                    return content
         return pygments.highlight(content, lexer, self.formatter)
