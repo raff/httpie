@@ -6,6 +6,7 @@ from pygments.util import ClassNotFound
 from pygments.lexers import get_lexer_for_mimetype, guess_lexer, XmlLexer
 from pygments.formatters.terminal256 import Terminal256Formatter
 from pygments.formatters.terminal import TerminalFormatter
+from pygments.formatters.other import NullFormatter
 from pygments.lexer import  RegexLexer, bygroups
 from pygments.styles import get_style_by_name, STYLE_MAP
 from . import solarized
@@ -13,7 +14,8 @@ from .pygson import JSONLexer
 
 
 DEFAULT_STYLE = 'solarized'
-AVAILABLE_STYLES = [DEFAULT_STYLE] + STYLE_MAP.keys()
+NO_STYLE = 'none'
+AVAILABLE_STYLES = [DEFAULT_STYLE, NO_STYLE] + STYLE_MAP.keys()
 FORMATTER = (Terminal256Formatter
              if '256color' in os.environ.get('TERM', '')
              else TerminalFormatter)
@@ -32,14 +34,25 @@ class HTTPLexer(RegexLexer):
     ]}
 
 
+class TextFormatter(NullFormatter):
+    def __init__(self, **options):
+        """
+        NullFormater DOES NOT HAVE self.encoding configured!
+        """
+        NullFormatter.__init__(self, **options)
+        self.encoding = 'ascii'
+
 class PrettyHttp(object):
 
     def __init__(self, style_name):
-        if style_name == 'solarized':
-            style = solarized.SolarizedStyle
+        if style_name == 'none':
+            self.formatter = TextFormatter()
         else:
-            style = get_style_by_name(style_name)
-        self.formatter = FORMATTER(style=style)
+            if style_name == 'solarized':
+                style = solarized.SolarizedStyle
+            else:
+                style = get_style_by_name(style_name)
+            self.formatter = FORMATTER(style=style)
 
     def headers(self, content):
         return pygments.highlight(content, HTTPLexer(), self.formatter)
